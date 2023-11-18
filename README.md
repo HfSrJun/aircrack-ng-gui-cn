@@ -2,7 +2,7 @@
 
 一个使用python-gtk3编写的[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)图形界面。 
 
-由HfSr进行中文翻译
+此项目fork自[t-gitt的原仓库](https://github.com/t-gitt/aircrack-ng-gui)，由HfSr进行中文翻译并作出改进。
 
 ## 它能干啥？
 使用[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)和`iw`对WPA/WPA2网络发动暴力破解攻击。
@@ -27,6 +27,18 @@
 * 通过`sudo python aircrack-ng-gui/aircrack-ng-gui.py`来运行aircrack-ng-gui。请确保你运行时使用的是python 3。
 
 > Airodump-ng的输出文件被存放于`/home/$USER/.aircrack-ng-gui/`
+
+## 额外说明
+若对此项目有任何意见或建议，欢迎提出issue或PR！
+
+项目所需依赖（requirements.txt中）仅为PyGObject。若pip安装失败，请另寻方法安装，包括但不限于系统的包管理器。
+
+aircrack-ng-gui/aircrack-ng-gui.py为主程序脚本，可进行一些修改，包括：
+
+* `ui_scale`变量。用于缩放窗口大小。如果你修改了系统的缩放倍率这个参数可能会有用。
+
+* `term_param`变量。是在新的终端窗口运行命令（aircrack-ng与airodump-ng）时调用终端的参数。理论上可以改为`xterm`以外的终端。
+
 
 ## 截图
 
@@ -66,9 +78,6 @@ wifi接入点扫描窗口。在选择网络接口后，用户可使用iw扫描wi
 在将握手包保存到cap文件中后，可通过主窗口访问aircrack。用户需选定某个包含握手包的.cap文件和一个字典文件，以在选定的终端模拟器中进行暴力破解。
 
 ![Alt text](screenshots/8.png?raw=true "ScreenShot 8")
-
-## 捐助
-![bitcoin](https://raw.githubusercontent.com/t-gitt/aircrack-ng-gui/master/bitcoin-address.txt)
 
 ## 目录树
 ```
