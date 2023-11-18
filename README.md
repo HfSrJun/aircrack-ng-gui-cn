@@ -1,76 +1,76 @@
 # aircrack-ng GUI
 
-An [aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng) gui interface using python-gtk3. 
+一个使用python-gtk3编写的[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)图形界面。 
 
-[![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
+由HfSr进行中文翻译
 
-## What can it do?
-Performing a bruteforce attack on WPA/WPA2 networks using [aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng) and `iw`.
+## 它能干啥？
+使用[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)和`iw`对WPA/WPA2网络发动暴力破解攻击。
 
-## Usage
-### To Install On Linux
-* make sure [aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng) & `xterm` are installed
-* Clone the repo `git clone https://github.com/t-gitt/aircrack-ng-gui.git`
+## 用法
+### 在Linux上安装
+* 首先确保已安装[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)和`xterm`。
+* 克隆仓库：`git clone https://github.com/t-gitt/aircrack-ng-gui.git`
 * `cd aircrack-ng-gui/`
-* Install the script by `sudo python start.py install`
-* It should have added the script to /usr/bin/ and you can now run it from the terminal by `sudo aircrack-ng-gui.py`
+* 运行`sudo python start.py install`，安装脚本文件。
+* 安装后脚本应当会被添加到/usr/bin/中，你可以在终端里执行`sudo aircrack-ng-gui.py`以运行此软件。
 
-#### Uninstall
-* You can uninstall it through pip by `pip uninstall aircrack-ng-gui`
+#### 卸载
+* 你可以通过pip卸载此软件，只需执行：`pip uninstall aircrack-ng-gui`。
 
 
-### To Manually Run The Script
-* make sure [aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng) & `xterm` are installed
-* clone the repo
+### 手动运行脚本
+* 首先确保已安装[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)和`xterm`。
+* 克隆仓库
 * `cd aircrack-ng-gui/`
-* install dependencies by `pip install -r requirements.txt` 
-* run aircrack-ng-gui by `sudo python aircrack-ng-gui/aircrack-ng-gui.py` | make sure you are running it with python 3
+* 执行`pip install -r requirements.txt`，安装依赖。 
+* 通过`sudo python aircrack-ng-gui/aircrack-ng-gui.py`来运行aircrack-ng-gui。请确保你运行时使用的是python 3。
 
-> Airodump-ng output files are saved in `/home/$USER/.aircrack-ng-gui/`
+> Airodump-ng的输出文件被存放于`/home/$USER/.aircrack-ng-gui/`
 
-## Screenshots
+## 截图
 
-### Main Window
-Main Window where user can choose to go to Scan, airmon-ng, and aircrack-ng windows after selecting the interface (wlp4s0)
+### 主窗口
+软件的主界面。用户在选择了网络接口（图中wlp4s0）后，可在此窗口选择跳转到扫描、airmon-ng和aircrack-ng窗口。
 
 ![Alt text](screenshots/1.png?raw=true "ScreenShot 1")
 
-### Airmon-ng  Window
-A window to check, start or stop airmon-ng, along with starting and stopping systemd NetworkManager.service
+### Airmon-ng窗口
+用于检查、启动和停止airmon-ng的窗口。还可用于启动与停止systemd NetworkManager.service。
 
 ![Alt text](screenshots/9.png?raw=true "ScreenShot 9")
 
-### Scanning Window
-A wifi access point scanning window. After choosing their interface, the user can scan for wifi ap using iw. Then, after choosing the target ap, they can go to airodump-ng after starting airmon-ng
+### 扫描窗口
+wifi接入点扫描窗口。在选择网络接口后，用户可使用iw扫描wifi接入点。用户在选好了目标接入点后，即可启动airmon-ng并前往airodump-ng。
 
 ![Alt text](screenshots/2.png?raw=true "ScreenShot 2")
 
-### Airmon-ng "with ssid chosen" Window
-Very similar to Airmon-ng window, except this one pass the ssid variables "SSID, BSSID, CHANNEL" to Airodump-ng window
+### “已经选择ssid的”Airmon-ng窗口
+与Airmon-ng窗口十分类似，但是此窗口会向Airodump-ng传递ssid变量"SSID, BSSID, CHANNEL"。
 
 ![Alt text](screenshots/3.png?raw=true "ScreenShot 3")
 
-### Airodump-ng Window | 1
-To run airodump-ng (via desired terminal emulator) on the targeted SSID and output the file (with the handshake) to a desired file name. | (could be done better using STDERR and subprocess)
+### Airodump-ng窗口 | 1
+用于（通过指定的终端模拟器）对目标SSID运行airodump-ng，并将文件（内含握手包）输出为你指定的文件名。（最好用STDERR和子进程）
 
 ![Alt text](screenshots/5.png?raw=true "ScreenShot 5")
 
 
 
-### Airodump-ng Window | 2
-After running airodump-ng, the user can use aireplay to send deauthentication packets for desired n times and a desired station to capture the handshake
+### Airodump-ng窗口 | 2
+在运行airodump-ng后，用户可使用aireplay来向指定station发送指定次数的下线包，以便于获取握手包。
 
 ![Alt text](screenshots/6.png?raw=true "ScreenShot 6")
 
-### Aircrack-ng Window
-After saving the handshake into a cap file, aircrack can be accessed from the main window. The user chooses a .cap file that contain the handshake and a wordlist to perform the bruteforce attack on their desired terminal emulator.
+### Aircrack-ng窗口
+在将握手包保存到cap文件中后，可通过主窗口访问aircrack。用户需选定某个包含握手包的.cap文件和一个字典文件，以在选定的终端模拟器中进行暴力破解。
 
 ![Alt text](screenshots/8.png?raw=true "ScreenShot 8")
 
-## Donations
+## 捐助
 ![bitcoin](https://raw.githubusercontent.com/t-gitt/aircrack-ng-gui/master/bitcoin-address.txt)
 
-## Directory tree
+## 目录树
 ```
 ├── LICENSE
 ├── README.md
