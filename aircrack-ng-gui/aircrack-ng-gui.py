@@ -10,6 +10,8 @@ from urllib import parse
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 diruser= os.popen("eval echo ~${SUDO_USER}").read().split('\n', 1)[0]
+term_param="xterm -hold -sb -fn 10*20 -geometry 100x30 -e"#param to open new terminal windows
+ui_scale=1.5#scale of your system
 
 class ListBoxRowWithData(Gtk.ListBoxRow):
     def __init__(self, data):
@@ -25,8 +27,8 @@ class MainWindow(Gtk.Window):
     def __init__(self):
         Gtk.Window.__init__(self, title="aircrack-ng GUI")
         self.connect("destroy", Gtk.main_quit)
-        self.set_border_width(10)
-        self.set_default_size(200,200)
+        self.set_border_width(10*ui_scale)
+        self.set_default_size(200*ui_scale,200*ui_scale)
         grid = Gtk.Grid()
         self.add(grid)
 
@@ -161,7 +163,7 @@ class AirmonWindow(Gtk.Window):
 
         # the scrolledwindow
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_border_width(10)
+        scrolled_window.set_border_width(10*ui_scale)
         # there is always the scrollbar (otherwise: AUTOMATIC - only if needed
         # - or NEVER)
         scrolled_window.set_policy(
@@ -169,8 +171,8 @@ class AirmonWindow(Gtk.Window):
 
         self.add(scrolled_window)
         scrolled_window.add(grid)
-        self.set_border_width(10)
-        self.set_default_size(800,600)
+        self.set_border_width(10*ui_scale)
+        self.set_default_size(800*ui_scale,600*ui_scale)
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
@@ -204,7 +206,7 @@ class AirmonWindow(Gtk.Window):
         self.button_systemd_start.connect("clicked", self.whenbutton_systemd_clicked, "start")
         self.button_systemd_stop=Gtk.Button(label="停止NetworkManager.service")
         self.button_systemd_stop.connect("clicked", self.whenbutton_systemd_clicked, "stop")
-        label_systemd=Gtk.Label(label="\n Systemd Status: \n ")
+        label_systemd=Gtk.Label(label="\n Systemd状态: \n ")
         systemd_status=os.popen("sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
         self.label_systemd_status=Gtk.Label(label=systemd_status)
 
@@ -304,7 +306,7 @@ class scanWindow(Gtk.Window):
 
         # the scrolledwindow
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_border_width(10)
+        scrolled_window.set_border_width(10*ui_scale)
         # there is always the scrollbar (otherwise: AUTOMATIC - only if needed
         # - or NEVER)
         scrolled_window.set_policy(
@@ -312,8 +314,8 @@ class scanWindow(Gtk.Window):
 
         self.add(scrolled_window)
         scrolled_window.add(grid)
-        self.set_default_size(250,600)
-        self.set_border_width(10)
+        self.set_default_size(300*ui_scale,600*ui_scale)
+        self.set_border_width(10*ui_scale)
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
@@ -327,11 +329,10 @@ class scanWindow(Gtk.Window):
         # SSID List
         
         self.main_command_essid_output= os.popen("dbus-run-session sudo iw {} scan".format(interface)).read()
+        self.main_command_essid_output= parse.unquote(self.main_command_essid_output.replace("\\x", "%"))
         self.command_essid=''' echo "{}" | egrep "SSID:" | awk -F 'SSID:' '{}' '''.format(self.main_command_essid_output, "{print $2}")
+        self.command_essid= parse.unquote(self.command_essid.replace("\\x", "%"))
         output_essid= os.popen(self.command_essid).read()
-
-        output_essid=parse.unquote(output_essid.replace("\\x","%"))
-
         print("\n"+output_essid+"\n")
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
@@ -363,7 +364,7 @@ class scanWindow(Gtk.Window):
                 raise Thread
 
             self.label_ssid_output.set_text(self.ssid)
-            self.label_bssid_output.set_text(self.bssid)
+            self.label_bssid_output.set_text(self.bssid.replace("\n", ""))
             self.label_channel_output.set_text(self.channel)
             return self.selection_listbox, self.ssid, self.bssid, self.channel
 
@@ -444,7 +445,7 @@ class airmonSsidWindow(Gtk.Window):
 
          # the scrolledwindow
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_border_width(10)
+        scrolled_window.set_border_width(10*ui_scale)
         # there is always the scrollbar (otherwise: AUTOMATIC - only if needed
         # - or NEVER)
         scrolled_window.set_policy(
@@ -452,8 +453,8 @@ class airmonSsidWindow(Gtk.Window):
 
         self.add(scrolled_window)
         scrolled_window.add(grid)
-        self.set_border_width(10)
-        self.set_default_size(800,600)
+        self.set_border_width(10*ui_scale)
+        self.set_default_size(800*ui_scale,600*ui_scale)
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
@@ -641,7 +642,7 @@ class airodumpWindow(Gtk.Window):
 
          # the scrolledwindow
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_border_width(10)
+        scrolled_window.set_border_width(10*ui_scale)
         # there is always the scrollbar (otherwise: AUTOMATIC - only if needed
         # - or NEVER)
         scrolled_window.set_policy(
@@ -649,8 +650,8 @@ class airodumpWindow(Gtk.Window):
 
         self.add(scrolled_window)
         scrolled_window.add(grid)
-        self.set_border_width(10)
-        self.set_default_size(800,600)
+        self.set_border_width(10*ui_scale)
+        self.set_default_size(800*ui_scale,600*ui_scale)
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
@@ -733,7 +734,7 @@ class airodumpWindow(Gtk.Window):
             grid.attach(self.label_entry_deauth, 1, 10, 1, 1)
             grid.attach(self.entry_deauth, 1, 11, 1, 1)
             self.show_all()
-            command_airodump='''xterm -hold -e "sudo airodump-ng --bssid '{}' -c '{}' --write '{}' {} " '''.format(bssid, channel, path, self.new_interface)
+            command_airodump=term_param+''' "sudo airodump-ng --bssid '{}' -c '{}' --write '{}' {} " '''.format(bssid, channel, path, self.new_interface)
             print(command_airodump)
 #            command_airodump="{} 'airmon-ng check {}'".format(self.terminal, self.new_interface)
             command_airodump_run=os.popen(command_airodump)
@@ -778,7 +779,7 @@ class aircrackWindow(Gtk.Window):
 
          # the scrolledwindow
         scrolled_window = Gtk.ScrolledWindow()
-        scrolled_window.set_border_width(10)
+        scrolled_window.set_border_width(10*ui_scale)
         # there is always the scrollbar (otherwise: AUTOMATIC - only if needed
         # - or NEVER)
         scrolled_window.set_policy(
@@ -786,8 +787,8 @@ class aircrackWindow(Gtk.Window):
 
         self.add(scrolled_window)
         scrolled_window.add(grid)
-        self.set_border_width(10)
-        self.set_default_size(800,600)
+        self.set_border_width(10*ui_scale)
+        self.set_default_size(800*ui_scale,600*ui_scale)
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
@@ -842,7 +843,7 @@ class aircrackWindow(Gtk.Window):
     def startAircrack(self, button):
         try:
 #            self.terminal = self.entry_terminal.get_text()
-            command_aircrack=''' xterm -hold -e "sudo aircrack-ng -w '{}' '{}' " '''.format(self.wordlist, self.cap)
+            command_aircrack=term_param+''' "sudo aircrack-ng -w '{}' '{}' " '''.format(self.wordlist, self.cap)
             start_aircrack=os.popen(command_aircrack)
             pass
         except Exception as Thread:
