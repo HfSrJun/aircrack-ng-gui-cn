@@ -6,6 +6,7 @@ import os
 import sys
 import subprocess
 from gi.repository import GObject as gobject
+from urllib import parse
 
 dirname, filename = os.path.split(os.path.abspath(__file__))
 diruser= os.popen("eval echo ~${SUDO_USER}").read().split('\n', 1)[0]
@@ -42,7 +43,7 @@ class MainWindow(Gtk.Window):
         output_interface = os.popen(command_interface).read()
         box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
-        label_interface = Gtk.Label(label="Interfaces:")
+        label_interface = Gtk.Label(label="网络接口:")
 
         self.listbox = Gtk.ListBox()
         items = output_interface.split()
@@ -77,7 +78,7 @@ class MainWindow(Gtk.Window):
         button_aircrack.connect("clicked", self.whenbutton_aircrack_clicked)
 
         # Go to scanWindow button
-        button_scanWindow=Gtk.Button(label="Scan")
+        button_scanWindow=Gtk.Button(label="扫描")
         button_scanWindow.connect("clicked", self.whenbutton_scanWindow_clicked)
 
 
@@ -98,9 +99,9 @@ class MainWindow(Gtk.Window):
         else: 
             def on_error_clicked(self):
                 dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                    Gtk.ButtonsType.OK, "No interface is selected")
+                    Gtk.ButtonsType.OK, "未选中网络接口")
                 dialog.format_secondary_text(
-                    "Please make sure to select a valid interface")
+                    "请先选中某个有效接口")
                 dialog.run()
                 dialog.destroy()
             on_error_clicked(self)
@@ -111,9 +112,9 @@ class MainWindow(Gtk.Window):
             if ("mon" in self.selection_listbox):
                 def on_error_clicked(self):
                     dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                        Gtk.ButtonsType.OK, "Interface can't scan using iw with airmon-ng on")
+                        Gtk.ButtonsType.OK, "airmon-ng开启时，网络接口无法使用iw进行扫描")
                     dialog.format_secondary_text(
-                        "Please stop airmon-ng and try again")
+                        "请停止airmon-ng的运行并重试")
                     dialog.run()
                     dialog.destroy()
                 on_error_clicked(self)
@@ -126,9 +127,9 @@ class MainWindow(Gtk.Window):
         else: 
             def on_error_clicked(self):
                 dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                    Gtk.ButtonsType.OK, "No interface is selected")
+                    Gtk.ButtonsType.OK, "未选中网络接口")
                 dialog.format_secondary_text(
-                    "Please make sure to select a valid interface")
+                    "请先选中某个有效接口")
                 dialog.run()
                 dialog.destroy()
             on_error_clicked(self)
@@ -198,17 +199,17 @@ class AirmonWindow(Gtk.Window):
 
 
         # Systemd toggle
-        self.label_systemd=Gtk.Label(label="\n In most cases, you need to stop your network manager service.\n If you are using systemd with NetworkManager.service you can stop it from here \n")
-        self.button_systemd_start=Gtk.Button(label="Start NetworkManager.service")
+        self.label_systemd=Gtk.Label(label="\n大多数情况下你需要停止network manager服务。\n如果你使用的是systemd和NetworkManager.service，那么你可以在此处将其停止\n")
+        self.button_systemd_start=Gtk.Button(label="启动NetworkManager.service")
         self.button_systemd_start.connect("clicked", self.whenbutton_systemd_clicked, "start")
-        self.button_systemd_stop=Gtk.Button(label="Stop NetworkManager.service")
+        self.button_systemd_stop=Gtk.Button(label="停止NetworkManager.service")
         self.button_systemd_stop.connect("clicked", self.whenbutton_systemd_clicked, "stop")
         label_systemd=Gtk.Label(label="\n Systemd Status: \n ")
         systemd_status=os.popen("sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
         self.label_systemd_status=Gtk.Label(label=systemd_status)
 
         # Go back to Main Window
-        self.button_mainwindow=Gtk.Button(label="Go to Main Window")
+        self.button_mainwindow=Gtk.Button(label="返回主窗口")
         self.button_mainwindow.connect("clicked", self.Gotomainwindow)
 
         # grid
@@ -231,13 +232,13 @@ class AirmonWindow(Gtk.Window):
             command_airmon_start= f"sudo airmon-ng start {interface}"
             output_airmon_start = os.popen(command_airmon_start).read()
             self.label_commands_log_output.set_text(output_airmon_start)
-            self.label_commands_log.set_text(f"airmon-ng start {interface} output:")
+            self.label_commands_log.set_text(f"airmon-ng start {interface}的输出:")
             return output_airmon_start
         elif (arg=="stop"):
             command_airmon_stop= f"sudo airmon-ng stop {interface}"
             output_airmon_stop= os.popen(command_airmon_stop).read()
             self.label_commands_log_output.set_text(output_airmon_stop)
-            self.label_commands_log.set_text(f"airmon-ng stop {interface} output:")
+            self.label_commands_log.set_text(f"airmon-ng stop {interface}的输出:")
             return output_airmon_stop
 
     # airmon-ng check button | functionality
@@ -248,7 +249,7 @@ class AirmonWindow(Gtk.Window):
             return output_airmon_check
 
         self.label_commands_log_output.set_text(airmonCheck())
-        self.label_commands_log.set_text("airmon-ng check output:")
+        self.label_commands_log.set_text("airmon-ng check的输出:")
         grid.attach(self.button_airmon_check_kill,3, 12, 1, 1)
         self.show_all()
         
@@ -259,7 +260,7 @@ class AirmonWindow(Gtk.Window):
             output_airmon_check_kill = os.popen(command_airmon_check_kill).read()
             return output_airmon_check_kill
         self.label_commands_log_output.set_text(airmonCheckKill())
-        self.label_commands_log.set_text("airmon-ng check kill output:")
+        self.label_commands_log.set_text("airmon-ng check kill的输出:")
         grid.remove(self.button_airmon_check_kill)
 
 
@@ -268,16 +269,16 @@ class AirmonWindow(Gtk.Window):
         if (arg=="start"):
             command_networkmanager_start= "sudo systemctl start NetworkManager"
             output_networkmanager_start = os.popen(command_networkmanager_start).read()
-            self.label_commands_log_output.set_text("NetworkManager.service has been started")
-            self.label_commands_log.set_text("systemctl start NetworkManager output:")
+            self.label_commands_log_output.set_text("NetworkManager.service已被开启")
+            self.label_commands_log.set_text("systemctl start NetworkManager的输出:")
             systemd_status=os.popen("sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
             self.label_systemd_status.set_text(systemd_status)
             return output_networkmanager_start
         elif (arg=="stop"):
             command_networkmanager_stop= "sudo systemctl stop NetworkManager"
             output_networkmanager_stop= os.popen(command_networkmanager_stop).read()
-            self.label_commands_log_output.set_text("NetworkManager.service has been stopped")
-            self.label_commands_log.set_text("systemctl stop NetworkManager output:")
+            self.label_commands_log_output.set_text("NetworkManager.service已被停止")
+            self.label_commands_log.set_text("systemctl stop NetworkManager的输出:")
             systemd_status=os.popen("sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
             self.label_systemd_status.set_text(systemd_status)
             return output_networkmanager_stop
@@ -294,7 +295,7 @@ class scanWindow(Gtk.Window):
 
     def __init__(self, interface):
 
-        Gtk.Window.__init__(self, title="aircrack-ng GUI | Scanning Window")
+        Gtk.Window.__init__(self, title="aircrack-ng GUI | 扫描窗口")
         self.connect("destroy", Gtk.main_quit)
 
 
@@ -316,7 +317,7 @@ class scanWindow(Gtk.Window):
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
-        hb.props.title = "aircrack-ng GUI | Scanning Window"
+        hb.props.title = "aircrack-ng GUI | 扫描窗口"
         self.set_titlebar(hb)
 
         label_empty_space=Gtk.Label(label="\n")
@@ -328,6 +329,9 @@ class scanWindow(Gtk.Window):
         self.main_command_essid_output= os.popen("dbus-run-session sudo iw {} scan".format(interface)).read()
         self.command_essid=''' echo "{}" | egrep "SSID:" | awk -F 'SSID:' '{}' '''.format(self.main_command_essid_output, "{print $2}")
         output_essid= os.popen(self.command_essid).read()
+
+        output_essid=parse.unquote(output_essid.replace("\\x","%"))
+
         print("\n"+output_essid+"\n")
         self.box_outer = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 
@@ -380,11 +384,11 @@ class scanWindow(Gtk.Window):
         self.box_outer.add(self.listbox)
 
         # scanning command
-        button_scan = Gtk.Button(label=f" Scan {interface}")
+        button_scan = Gtk.Button(label=f"扫描{interface}")
         button_scan.connect("clicked", self.whenbutton_scan_clicked, grid, interface)
         
         # Go back to Main Window
-        self.button_mainwindow=Gtk.Button(label="Go to Main Window")
+        self.button_mainwindow=Gtk.Button(label="返回主窗口")
         self.button_mainwindow.connect("clicked", self.Gotomainwindow)
 
         # Go to airmon-ng Window
@@ -434,7 +438,7 @@ class airmonSsidWindow(Gtk.Window):
 
     def __init__(self, interface, ssid, bssid, channel):
 
-        Gtk.Window.__init__(self, title="aircrack-ng GUI | Airmon-ng with SSID Window")
+        Gtk.Window.__init__(self, title="aircrack-ng GUI | 指定SSID的Airmon-ng窗口")
         self.connect("destroy", Gtk.main_quit)
         grid = Gtk.Grid()
 
@@ -453,7 +457,7 @@ class airmonSsidWindow(Gtk.Window):
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
-        hb.props.title = "aircrack-ng GUI | Airmon-ng with SSID Window"
+        hb.props.title = "aircrack-ng GUI | 指定SSID的Airmon-ng窗口"
         self.set_titlebar(hb)
 
         label_empty_space=Gtk.Label(label="\n")
@@ -490,21 +494,21 @@ class airmonSsidWindow(Gtk.Window):
 
 
         # Systemd toggle
-        self.label_systemd=Gtk.Label(label="\n In most cases, you need to stop your network manager service.\n If you are using systemd with NetworkManager.service you can stop it from here \n")
-        self.button_systemd_start=Gtk.Button(label="Start NetworkManager.service")
+        self.label_systemd=Gtk.Label(label="\n大多数情况下你需要停止network manager服务。\n如果你使用的是systemd和NetworkManager.service，那么你可以在此处将其停止\n")
+        self.button_systemd_start=Gtk.Button(label="启动NetworkManager.service")
         self.button_systemd_start.connect("clicked", self.whenbutton_systemd_clicked, "start")
-        self.button_systemd_stop=Gtk.Button(label="Stop NetworkManager.service")
+        self.button_systemd_stop=Gtk.Button(label="停止NetworkManager.service")
         self.button_systemd_stop.connect("clicked", self.whenbutton_systemd_clicked, "stop")
-        label_systemd=Gtk.Label(label="\n Systemd Status: \n ")
+        label_systemd=Gtk.Label(label="\n Systemd状态: \n ")
         systemd_status=os.popen("dbus-run-session sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
         self.label_systemd_status=Gtk.Label(systemd_status)
 
         # Go back to Main Window
-        self.button_mainwindow=Gtk.Button(label="Go to Main Window")
+        self.button_mainwindow=Gtk.Button(label="返回主窗口")
         self.button_mainwindow.connect("clicked", self.Gotomainwindow)
 
         # Current Interface
-        self.label_current_interface=Gtk.Label(label="Current Interface:")
+        self.label_current_interface=Gtk.Label(label="当前网络接口:")
         self.label_current_interface_output=Gtk.Label(label="")
         self.new_interface=""
         # Go to Airodump-ng Window
@@ -540,7 +544,7 @@ class airmonSsidWindow(Gtk.Window):
             command_airmon_start= f"sudo airmon-ng start {interface}"
             output_airmon_start = os.popen(command_airmon_start).read()
             self.label_commands_log_output.set_text(output_airmon_start)
-            self.label_commands_log.set_text(f"dbus-run-session airmon-ng start {interface} output:")
+            self.label_commands_log.set_text(f"dbus-run-session airmon-ng start {interface}的输出:")
             command_new_interface = "iw dev | awk '$1==\"Interface\" {print $2}'"
             output_new_interface = os.popen(command_new_interface).read()
             print(output_new_interface)
@@ -552,7 +556,7 @@ class airmonSsidWindow(Gtk.Window):
             command_airmon_stop= f"dbus-run-session sudo airmon-ng stop {interface}"
             output_airmon_stop= os.popen(command_airmon_stop).read()
             self.label_commands_log_output.set_text(output_airmon_stop)
-            self.label_commands_log.set_text(f"dbus-run-session airmon-ng stop {interface} output:")
+            self.label_commands_log.set_text(f"dbus-run-session airmon-ng stop {interface}的输出:")
             command_new_interface = "iw dev | awk '$1==\"Interface\" {print $2}'"
             output_new_interface = os.popen(command_new_interface).read()
             print(output_new_interface)
@@ -569,9 +573,9 @@ class airmonSsidWindow(Gtk.Window):
             else:
                 def on_error_clicked(self):
                     dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                        Gtk.ButtonsType.OK, "airmon-ng is not started")
+                        Gtk.ButtonsType.OK, "airmon-ng未启动")
                     dialog.format_secondary_text(
-                        "Please start airmon-ng and try again")
+                        "请启动airmon-ng并重试")
                     dialog.run()
                     dialog.destroy()
                 on_error_clicked(self)
@@ -585,7 +589,7 @@ class airmonSsidWindow(Gtk.Window):
             return output_airmon_check
 
         self.label_commands_log_output.set_text(airmonCheck())
-        self.label_commands_log.set_text("airmon-ng check output:")
+        self.label_commands_log.set_text("airmon-ng check的输出:")
         grid.attach(self.button_airmon_check_kill,3, 12, 1, 1)
         self.show_all()
         
@@ -596,7 +600,7 @@ class airmonSsidWindow(Gtk.Window):
             output_airmon_check_kill = os.popen(command_airmon_check_kill).read()
             return output_airmon_check_kill
         self.label_commands_log_output.set_text(airmonCheckKill())
-        self.label_commands_log.set_text("airmon-ng check kill output:")
+        self.label_commands_log.set_text("airmon-ng check kill的输出:")
         grid.remove(self.button_airmon_check_kill)
 
     # systemd button | functionality
@@ -604,16 +608,16 @@ class airmonSsidWindow(Gtk.Window):
         if (arg=="start"):
             command_networkmanager_start= "dbus-run-session sudo systemctl start NetworkManager"
             output_networkmanager_start = os.popen(command_networkmanager_start).read()
-            self.label_commands_log_output.set_text("NetworkManager.service has been started")
-            self.label_commands_log.set_text("systemctl start NetworkManager output:")
+            self.label_commands_log_output.set_text("NetworkManager.service已被启动")
+            self.label_commands_log.set_text("systemctl start NetworkManager的输出:")
             systemd_status=os.popen("dbus-run-session sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
             self.label_systemd_status.set_text(systemd_status)
             return output_networkmanager_start
         elif (arg=="stop"):
             command_networkmanager_stop= "dbus-run-session sudo systemctl stop NetworkManager"
             output_networkmanager_stop= os.popen(command_networkmanager_stop).read()
-            self.label_commands_log_output.set_text("NetworkManager.service has been stopped")
-            self.label_commands_log.set_text("systemctl stop NetworkManager output:")
+            self.label_commands_log_output.set_text("NetworkManager.service已被停止")
+            self.label_commands_log.set_text("systemctl stop NetworkManager的输出:")
             systemd_status=os.popen("dbus-run-session sudo systemctl status NetworkManager.service | awk '$1==\"Active:\" {print $0}'").read()
             self.label_systemd_status.set_text(systemd_status)
             return output_networkmanager_stop
@@ -631,7 +635,7 @@ class airodumpWindow(Gtk.Window):
 
     def __init__(self, new_interface, ssid, bssid, channel):
 
-        Gtk.Window.__init__(self, title="aircrack-ng GUI | Airodump-ng Window")
+        Gtk.Window.__init__(self, title="aircrack-ng GUI | Airodump-ng窗口")
         self.connect("destroy", Gtk.main_quit)
         grid = Gtk.Grid()
 
@@ -650,7 +654,7 @@ class airodumpWindow(Gtk.Window):
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
-        hb.props.title = "aircrack-ng GUI | Airodump-ng Window"
+        hb.props.title = "aircrack-ng GUI | Airodump-ng窗口"
         self.set_titlebar(hb)
 
         self.label_empty_space=Gtk.Label(label="\n")
@@ -666,9 +670,9 @@ class airodumpWindow(Gtk.Window):
 
 
         # aireplay-ng
-        self.label_entry_station=Gtk.Label(label="Input one of the stations' addresses:")
+        self.label_entry_station=Gtk.Label(label="请输入某个station的地址:")
         self.entry_station=Gtk.Entry()
-        self.button_aireplay=Gtk.Button(label="Start aireplay-ng")
+        self.button_aireplay=Gtk.Button(label="启动aireplay-ng")
         self.button_aireplay.connect("clicked", self.startAireplay)
 
 
@@ -678,19 +682,19 @@ class airodumpWindow(Gtk.Window):
 #        self.entry_terminal.set_text("xfce4-terminal -x")
 
         # deauth
-        self.label_entry_deauth=Gtk.Label(label="Input how many deauth you want to send")
+        self.label_entry_deauth=Gtk.Label(label="请输入要发送多少个deauth包")
         self.entry_deauth=Gtk.Entry()
 
         # target name
-        self.label_target=Gtk.Label(label="input the name of airodump-ng output file where the handshake is stored")
+        self.label_target=Gtk.Label(label="请输入用于保存握手包的airodump-ng输出文件名称")
         self.entry_target_name=Gtk.Entry()
 
         # Submit button
-        self.button_submit=Gtk.Button(label="Start Airodump-ng on {}".format(new_interface))
+        self.button_submit=Gtk.Button(label="在{}上启动Airodump-ng".format(new_interface))
         self.button_submit.connect("clicked", self.submit, grid)
 
         # Go back to Main Window
-        self.button_mainwindow=Gtk.Button(label="Go to Main Window")
+        self.button_mainwindow=Gtk.Button(label="返回主窗口")
         self.button_mainwindow.connect("clicked", self.Gotomainwindow)
 
         #grid 
@@ -737,7 +741,7 @@ class airodumpWindow(Gtk.Window):
         except Exception as Thread:
             def on_error_clicked(self):
                 dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR,
-                    Gtk.ButtonsType.OK, "Error!")
+                    Gtk.ButtonsType.OK, "错误！")
                 dialog.format_secondary_text(
                     Thread)
                 dialog.run()
@@ -768,7 +772,7 @@ class aircrackWindow(Gtk.Window):
 
     def __init__(self):
 
-        Gtk.Window.__init__(self, title="aircrack-ng GUI | Aircrack-ng Window")
+        Gtk.Window.__init__(self, title="aircrack-ng GUI | Aircrack-ng窗口")
         self.connect("destroy", Gtk.main_quit)
         grid = Gtk.Grid()
 
@@ -787,7 +791,7 @@ class aircrackWindow(Gtk.Window):
 
         hb = Gtk.HeaderBar()
         hb.set_show_close_button(True)
-        hb.props.title = "aircrack-ng GUI | Aircrack-ng Window"
+        hb.props.title = "aircrack-ng GUI | Aircrack-ng窗口"
         self.set_titlebar(hb)
 
         self.label_empty_space=Gtk.Label(label="\n")
@@ -795,21 +799,21 @@ class aircrackWindow(Gtk.Window):
 
         self.cap= None
         self.wordlist= None
-        self.label_cap=Gtk.Label(label="cap file path is:")
+        self.label_cap=Gtk.Label(label="cap文件路径为:")
         self.label_cap_output=Gtk.Label(label="")
-        self.label_wordlist=Gtk.Label(label="wordlist file path is:")
+        self.label_wordlist=Gtk.Label(label="字典文件路径为:")
         self.label_wordlist_output=Gtk.Label(label="")
     
         # cap file
-        self.button_cap = Gtk.Button("Choose the *.cap file")
+        self.button_cap = Gtk.Button("选择*.cap文件")
         self.button_cap.connect("clicked", self.on_file_clicked, "cap")
 
         # wordlist file
         self.button_wordlist= Gtk.Button("Choose a wordlist")
-        self.button_wordlist.connect("clicked", self.on_file_clicked, "wordlist")
+        self.button_wordlist.connect("clicked", self.on_file_clicked, "字典")
 
         # button aircrack
-        self.button_aircrack=Gtk.Button(label="Start aircrack-ng")
+        self.button_aircrack=Gtk.Button(label="启动aircrack-ng")
         self.button_aircrack.connect("clicked", self.startAircrack)
 
         # Terminal
@@ -818,7 +822,7 @@ class aircrackWindow(Gtk.Window):
 #        self.entry_terminal.set_text("xfce4-terminal -x")
 
         # Go back to Main Window
-        self.button_mainwindow=Gtk.Button(label="Go to Main Window")
+        self.button_mainwindow=Gtk.Button(label="返回主窗口")
         self.button_mainwindow.connect("clicked", self.Gotomainwindow)
 
         #grid 
@@ -846,14 +850,14 @@ class aircrackWindow(Gtk.Window):
 
     # file dialog
     def on_file_clicked(self, widget, file_type):
-        dialog = Gtk.FileChooserDialog("Please choose a file", self,
+        dialog = Gtk.FileChooserDialog("请选择一个文件", self,
             Gtk.FileChooserAction.OPEN,
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
              Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
 
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
-            print("Open clicked")
+            print("点击打开按钮")
             if (file_type == "cap"):
                 self.cap= dialog.get_filename()
                 self.label_cap_output.set_text(self.cap)
@@ -862,9 +866,9 @@ class aircrackWindow(Gtk.Window):
                 self.wordlist= dialog.get_filename()
                 self.label_wordlist_output.set_text(self.wordlist)
 
-            print("File selected: " + dialog.get_filename())
+            print("已选择文件: " + dialog.get_filename())
         elif response == Gtk.ResponseType.CANCEL:
-            print("Cancel clicked")
+            print("点击取消按钮")
 
         dialog.destroy()
         
