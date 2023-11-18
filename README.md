@@ -51,7 +51,7 @@ wifi接入点扫描窗口。在选择网络接口后，用户可使用iw扫描wi
 ![Alt text](screenshots/3.png?raw=true "ScreenShot 3")
 
 ### Airodump-ng窗口 | 1
-用于（通过指定的终端模拟器）对目标SSID运行airodump-ng，并将文件（内含握手包）输出为你指定的文件名。（最好用STDERR和子进程）
+用于（通过指定的终端模拟器）对目标SSID运行airodump-ng，并将文件（内含握手包）输出为你指定的文件名。（最好用STDERR和subprocess）
 
 ![Alt text](screenshots/5.png?raw=true "ScreenShot 5")
 
