@@ -10,7 +10,7 @@
 ## 用法
 ### 在Linux上安装
 * 首先确保已安装[aircrack-ng](https://www.github.com/aircrack-ng/aircrack-ng)和`xterm`。
-* 克隆仓库：`git clone https://github.com/t-gitt/aircrack-ng-gui.git`
+* 克隆仓库：`git clone https://github.com/HfSrJun/aircrack-ng-gui-cn.git`
 * `cd aircrack-ng-gui/`
 * 运行`sudo python start.py install`，安装脚本文件。
 * 安装后脚本应当会被添加到/usr/bin/中，你可以在终端里执行`sudo aircrack-ng-gui.py`以运行此软件。
